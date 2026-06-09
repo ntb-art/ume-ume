@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ume</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- 1: STARTSEITE -->
+<div class="page" id="page-start">
+  <h1 class="site-title"><a onclick="show('page-ume')">ume</a></h1>
+  <nav class="areal-list">
+    <a onclick="show('page-viscosi')">
+      Viscosi-Areal, Emmenbrücke, Luzern
+      <span class="datum">Mai &amp; Juni 2026</span>
+    </a>
+  </nav>
+</div>
+
+<!-- 2: UME TEXT -->
+<div class="page" id="page-ume">
+  <span class="back" onclick="show('page-start')">&#8592;</span>
+  <div class="ume-text">
+    <div class="ume-text-inner">
+      <p><em>ume</em> sein, in dem, was <em>ume</em> ist, war Idee dieses Projekts. Meinen Live-Standort hätte ich geteilt, um auffindbar zu sein.</p>
+      <p>Ich sprach mit Marina. Dabei realisierten wir, dass dieses Vorhaben für die stark programmgefüllten Ausstellungstage nicht geeignet wäre. Marina sagte, ich könnte Orte auf dem Areal fotografieren und diese Fotos vor Ort ausstellen. Ich ging dem nach.</p>
+      <p>Ich sprach mit Oli. Oli sagte, es könnten auch Markierungen der Standorte sein. Markierungen, die eine Aussichtsposition auf das Vorhandene definieren. Ich ging dem nach.</p>
+      <p>Ich sprach mit Simon. Simon sagte, Markierungen im Raum wären ein zu starker Eingriff angesichts meiner Auseinandersetzung mit dem Nicht-Eingreifen. Wir sprachen über digitale Alternativen. Ich ging dem nach.</p>
+      <p>Ich ging auf dem Areal umher und trug Orte in eine digitale Karte ein. Dabei traf ich Sania. Wir zeigten uns gegenseitig, woran wir gerade arbeiteten. Sania fragte, weshalb ich nicht etwas Eigenes mache, das ich auch in Zukunft nutzen könnte. Wie eine Webseite. Mir kam in den Sinn, dass ich noch Budget hatte.</p>
+      <p>So entstand diese Webseite. Das restliche Budget der Hochschule reichte für zehn Jahre Domain. Diese Webseite dient somit bis 2036 der Vermittlung von <em>ume</em>.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 3: KARTE -->
+<div class="page page-karte" id="page-viscosi">
+  <span class="back" onclick="show('page-start')">&#8592;</span>
+  <div class="karte-outer">
+    <div class="karte-wrap" id="karte-wrap">
+      <img src="fotos/karte-viscosi.jpg" alt="Karte Viscosi-Areal">
+    </div>
+  </div>
+</div>
+
+<!-- 4: STANDORT (dynamisch) -->
+<div class="page" id="page-standort"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
