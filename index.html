@@ -1,52 +1,372 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" href="img/rucksack.png">
+<meta property="og:title" content="ume">
+<meta property="og:image" content="https://ume-ume.ch/img/rucksack.png">
 <title>ume</title>
-<link rel="stylesheet" href="style.css">
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="ume – ein lebendiges Archiv vorgefundener Situationen.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400;0,700;1,400;1,700;1,900&display=swap">
+<style>
+html, body { margin: 0; }
+img { max-width: 100%; }
+
+/* Layout: weisse Fläche, schwarze fette Kursive. Riesiges «ume» oben, Rucksack rechts, die Begriffe als Wortblock, darunter das Raster gleich grosser Felder mit unbeschnittenen Bildern. Eine einzige Akzentfarbe: das Gelbgrün des Rucksacks. */
+:root {
+  --bg: #ffffff;
+  --fg: #000000;
+  --grau: #9a9a9a;
+  --linie: #e6e6e6;
+  --akzent: #d4f53c;      /* Rucksack */
+  --sans: "Archivo", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --gelb: #f2c500; --orange: #ff7a1a; --rot: #e1251b; --hellblau: #7cc4f5; --gruen: #3f9a2c; --weiss: #ffffff;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; animation: none !important; } }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--sans); font-size: 16px; line-height: 1.35;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--fg); outline-offset: 3px; }
+.fk { font-weight: 900; font-style: italic; }   /* fett kursiv */
+
+.wrap { max-width: 1560px; margin: 0 auto; }
+
+/* Kopf */
+header.top {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 16px;
+  padding-block: clamp(12px, 2.5vw, 32px) 0;
+}
+.wordmark {
+  text-decoration: none; font-weight: 900; font-style: italic;
+  font-size: clamp(5.5rem, 22vw, 19rem); line-height: .78; letter-spacing: -.065em;
+  margin-left: -.04em; padding-right: .08em; display: block;
+}
+.rucksack-btn { display: block; flex: none; width: clamp(64px, 9vw, 132px); margin-top: .4vw; transition: transform .25s ease; }
+.rucksack-btn img { display: block; width: 100%; height: auto; }
+.rucksack-btn:hover { transform: rotate(-8deg) scale(1.04); }
+
+/* Begriffe: ein Wortblock */
+nav.begriffe {
+  display: grid; gap: .55em;
+  padding-block: clamp(28px, 4vw, 52px) clamp(32px, 5vw, 64px);
+  font-size: clamp(1.15rem, 2.1vw, 1.75rem);
+}
+.gruppe { display: flex; flex-wrap: wrap; column-gap: .55em; row-gap: .1em; }
+.begriff {
+  font-weight: 700; font-style: italic; text-transform: lowercase; letter-spacing: -.02em;
+  display: inline-flex; align-items: baseline; gap: .15em;
+  padding: 0 .12em; margin: 0 -.12em; line-height: 1.15;
+  transition: background-color .12s ease;
+}
+.begriff:hover { background: var(--linie); }
+.begriff[aria-pressed="true"] { background: var(--akzent); }
+.begriff sup { font-weight: 400; font-style: normal; font-size: .45em; letter-spacing: 0; transform: translateY(-.15em); font-variant-numeric: tabular-nums; }
+.swatch { width: .5em; height: .5em; display: inline-block; align-self: center; margin-right: .08em; box-shadow: inset 0 0 0 1.5px var(--fg); }
+
+/* Raster */
+.raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(6px, 1.2vw, 18px); }
+@media (min-width: 640px)  { .raster { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 980px)  { .raster { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (min-width: 1320px) { .raster { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.feld {
+  aspect-ratio: 1 / 1; max-width: 100%; position: relative;
+  display: flex; align-items: center; justify-content: center;
+  padding: 7%;
+}
+.feld img { width: 100%; height: 100%; object-fit: contain; display: block; transition: opacity .4s ease, transform .3s ease; }
+.feld img.laedt { opacity: 0; }
+.feld:hover img { transform: scale(1.02); }
+.feld.textfeld { justify-content: flex-start; text-align: left; padding: 9%; }
+.textfeld p {
+  margin: 0; font-weight: 900; font-style: italic; letter-spacing: -.025em;
+  font-size: clamp(1rem, 1.7vw, 1.45rem); line-height: 1.08;
+  display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-line;
+}
+.feld.textfeld:hover p { background: var(--akzent); }
+.leer { font-weight: 700; font-style: italic; padding-block: 40px; }
+
+footer.fuss {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px;
+  padding-block: clamp(56px, 9vw, 120px) 28px;
+  font-weight: 700; font-style: italic; font-size: .95rem; font-variant-numeric: tabular-nums;
+}
+
+/* Grossansicht und Info */
+.ebene {
+  position: fixed; inset: 0; z-index: 20; background: var(--bg);
+  display: grid; grid-template-rows: auto 1fr auto;
+  padding: env(safe-area-inset-top, 0px) max(16px, env(safe-area-inset-right, 0px)) env(safe-area-inset-bottom, 0px) max(16px, env(safe-area-inset-left, 0px));
+}
+.ebene-kopf {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-block: 14px; font-weight: 700; font-style: italic; font-size: 1rem; font-variant-numeric: tabular-nums;
+}
+.schliessen { font-weight: 400; font-size: 2.2rem; line-height: 1; width: 44px; height: 44px; display: grid; place-items: center; margin-right: -10px; }
+.buehne { position: relative; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.buehne img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+.buehne .grosstext { max-width: 30em; max-height: 100%; overflow: auto; padding-block: 8px; }
+.grosstext h2 { font-weight: 900; font-style: italic; font-size: clamp(1.6rem, 4vw, 2.8rem); line-height: 1; letter-spacing: -.04em; margin: 0 0 .6em; text-wrap: balance; }
+.grosstext .t { font-weight: 700; font-style: italic; font-size: clamp(1.1rem, 2vw, 1.4rem); line-height: 1.3; letter-spacing: -.01em; white-space: pre-line; margin: 0; }
+.grosstext.kurz .t { font-weight: 900; font-size: clamp(2rem, 6vw, 4.5rem); line-height: 1; letter-spacing: -.045em; }
+.grosstext .q { font-size: .9rem; color: var(--grau); margin-top: 1.4em; font-style: italic; }
+.zone { position: absolute; top: 0; bottom: 0; width: 30%; z-index: 1; }
+.zone.l { left: 0; cursor: w-resize; } .zone.r { right: 0; cursor: e-resize; }
+.ebene-fuss {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: start; gap: 16px;
+  padding-block: 14px 20px;
+}
+.pfeil { font-weight: 900; font-size: 1.6rem; line-height: 1; width: 44px; height: 36px; display: grid; place-items: center; }
+.pfeil:disabled { color: var(--linie); cursor: default; }
+.meta { min-width: 0; display: grid; gap: 6px; justify-items: center; text-align: center; }
+.meta .datum { font-size: .9rem; font-variant-numeric: tabular-nums; color: var(--grau); }
+.meta .ortlink { color: var(--fg); font-weight: 700; font-style: italic; text-decoration: none; padding: 0 .1em; }
+.meta .ortlink:hover { background: var(--akzent); }
+.meta .links { display: flex; flex-wrap: wrap; justify-content: center; column-gap: .6em; row-gap: 2px; }
+.meta .links a { font-weight: 700; font-style: italic; font-size: 1.15rem; text-transform: lowercase; text-decoration: none; padding: 0 .12em; letter-spacing: -.015em; }
+.meta .links a:hover { background: var(--akzent); }
+.meta .bildtext { font-weight: 700; font-style: italic; font-size: 1.1rem; line-height: 1.3; max-width: 34em; margin: 4px 0 0; }
+
+/* Info */
+.info { overflow: auto; }
+.info-inhalt { max-width: 720px; margin: 0 auto; padding-block: 8px 72px; display: grid; gap: 30px; }
+.info-inhalt img { width: min(300px, 64%); justify-self: center; height: auto; }
+.info-inhalt h2 { font-weight: 900; font-style: italic; font-size: clamp(2.2rem, 7vw, 4.2rem); line-height: .95; letter-spacing: -.05em; margin: 0; text-wrap: balance; }
+.info-inhalt p { margin: 0; max-width: 60ch; font-size: 1.1rem; line-height: 1.45; }
+.info-inhalt dl { margin: 0; display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 12px 16px; }
+.info-inhalt dt { font-weight: 700; font-style: italic; }
+.info-inhalt dd { margin: 0; min-width: 0; }
+@media (max-width: 480px) { .info-inhalt dl { grid-template-columns: minmax(0, 1fr); gap: 2px; } .info-inhalt dd { margin-bottom: 10px; } }
+.platzhalter { background: var(--akzent); padding: 0 .15em; }
+.textlink { text-decoration: none; font-weight: 700; font-style: italic; box-shadow: inset 0 -.35em 0 var(--akzent); }
+</style>
 </head>
 <body>
 
-<!-- 1: STARTSEITE -->
-<div class="page" id="page-start">
-  <h1 class="site-title"><a onclick="show('page-ume')">ume</a></h1>
-  <nav class="areal-list">
-    <a onclick="show('page-viscosi')">
-      Viscosi-Areal, Emmenbrücke, Luzern
-      <span class="datum">Mai &amp; Juni 2026</span>
-    </a>
-  </nav>
+
+<div class="wrap">
+  <header class="top">
+    <a class="wordmark" href="#" id="home" aria-label="ume – alle Einträge">ume</a>
+    <button class="rucksack-btn" id="rucksack" aria-label="Info: Rucksack öffnen">
+      <img src="img/rucksack.png" alt="Ein gelbgrüner Rucksack" width="900" height="812">
+    </button>
+  </header>
+
+  <nav class="begriffe" id="begriffe" aria-label="Begriffe"></nav>
+
+  <main>
+    <div class="raster" id="raster"></div>
+    <p class="leer" id="leer" hidden>Zu diesem Begriff gibt es noch keine Einträge.</p>
+  </main>
+
+  <footer class="fuss">
+    <span id="anzahl"></span>
+    <span>ume-ume.ch · 2026–2036</span>
+  </footer>
 </div>
 
-<!-- 2: UME TEXT -->
-<div class="page" id="page-ume">
-  <span class="back" onclick="show('page-start')">&#8592;</span>
-  <div class="ume-text">
-    <div class="ume-text-inner">
-      <p><em>ume</em> sein, in dem, was <em>ume</em> ist, war Idee dieses Projekts. Meinen Live-Standort hätte ich geteilt, um auffindbar zu sein.</p>
-      <p>Ich sprach mit Marina. Dabei realisierten wir, dass dieses Vorhaben für die stark programmgefüllten Ausstellungstage nicht geeignet wäre. Marina sagte, ich könnte Orte auf dem Areal fotografieren und diese Fotos vor Ort ausstellen. Ich ging dem nach.</p>
-      <p>Ich sprach mit Oli. Oli sagte, es könnten auch Markierungen der Standorte sein. Markierungen, die eine Aussichtsposition auf das Vorhandene definieren. Ich ging dem nach.</p>
-      <p>Ich sprach mit Simon. Simon sagte, Markierungen im Raum wären ein zu starker Eingriff angesichts meiner Auseinandersetzung mit dem Nicht-Eingreifen. Wir sprachen über digitale Alternativen. Ich ging dem nach.</p>
-      <p>Ich ging auf dem Areal umher und trug Orte in eine digitale Karte ein. Dabei traf ich Sania. Wir zeigten uns gegenseitig, woran wir gerade arbeiteten. Sania fragte, weshalb ich nicht etwas Eigenes mache, das ich auch in Zukunft nutzen könnte. Wie eine Webseite. Mir kam in den Sinn, dass ich noch Budget hatte.</p>
-      <p>So entstand diese Webseite. Das restliche Budget der Hochschule reichte für zehn Jahre Domain. Diese Webseite dient somit bis 2036 der Vermittlung von <em>ume</em>.</p>
-    </div>
+<section class="ebene" id="gross" hidden aria-modal="true" role="dialog" aria-label="Grossansicht">
+  <div class="ebene-kopf"><span id="zaehler"></span><button class="schliessen" id="zu" aria-label="Schliessen">×</button></div>
+  <div class="buehne" id="buehne">
+    <button class="zone l" id="zl" aria-label="Vorheriger Eintrag" tabindex="-1"></button>
+    <button class="zone r" id="zr" aria-label="Nächster Eintrag" tabindex="-1"></button>
   </div>
-</div>
-
-<!-- 3: KARTE -->
-<div class="page page-karte" id="page-viscosi">
-  <span class="back" onclick="show('page-start')">&#8592;</span>
-  <div class="karte-outer">
-    <div class="karte-wrap" id="karte-wrap">
-      <img src="fotos/karte-viscosi.jpg" alt="Karte Viscosi-Areal">
-    </div>
+  <div class="ebene-fuss">
+    <button class="pfeil" id="zurueck" aria-label="Vorheriger Eintrag">←</button>
+    <div class="meta" id="meta"></div>
+    <button class="pfeil" id="weiter" aria-label="Nächster Eintrag">→</button>
   </div>
-</div>
+</section>
 
-<!-- 4: STANDORT (dynamisch) -->
-<div class="page" id="page-standort"></div>
+<section class="ebene info" id="info" hidden aria-modal="true" role="dialog" aria-label="Info">
+  <div class="ebene-kopf"><span>info</span><button class="schliessen" id="infozu" aria-label="Schliessen">×</button></div>
+  <div class="info-inhalt">
+    <img src="img/rucksack.png" alt="Der Rucksack, der bei Präsentationen für die Praxis steht" width="900" height="812">
+    <h2>Noah Breschan</h2>
+    <p><em>ume</em> ist eine künstlerische Praxis des Daseins und der Wahrnehmung. Sie behandelt den Umgang mit Bedingungen, mit dem, was bereits da ist, als Entwicklung von Haltung. Gesammelt wird, was vorgefunden wird: Situationen, Dinge, Ordnungen. Dieses Archiv wächst und verändert sich mit der Praxis.</p>
+    <dl>
+      <dt>formen</dt><dd>Fotografie, Begehung, Rahmung, Text</dd>
+      <dt>ausbildung</dt><dd>Master Art Education, Art in Public Spheres, Hochschule Luzern – Design &amp; Kunst, 2026. Lehrdiplom für Maturitätsschulen</dd>
+      <dt>tätigkeit</dt><dd>Lehrperson für Bildnerisches und Technisches Gestalten, Luzern</dd>
+      <dt>kontakt</dt><dd><a class="textlink" href="mailto:ume@ume-ume.ch">ume@ume-ume.ch</a></dd>
+    </dl>
+  </div>
+</section>
 
-<script src="app.js"></script>
+<script>
+const EINTRAEGE = [{"id": "img_1747","typ": "bild","datum": "2026-10-23T07:53:44","format": "hoch","begriffe": ["wege","baustelle","rot"]},{"id": "img_1742","typ": "bild","datum": "2026-10-22T17:09:00","format": "hoch","begriffe": ["konstellationen","angelehnt"]},{"id": "img_1539","typ": "bild","datum": "2026-10-06T13:28:40","format": "hoch","begriffe": ["treppen","landschaft","schatten"]},{"id": "img_1510","typ": "bild","datum": "2026-09-24T09:03:22","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_1471","typ": "bild","datum": "2026-09-15T13:29:34","format": "quer","begriffe": ["konstellationen","serien"]},{"id": "img_1461","typ": "bild","datum": "2026-09-15T13:26:20","format": "quer","begriffe": ["konstellationen","serien"]},{"id": "img_1457","typ": "bild","datum": "2026-09-15T13:25:31","format": "quer","begriffe": ["konstellationen","serien"]},{"id": "img_1454","typ": "bild","datum": "2026-09-15T13:09:51","format": "hoch","begriffe": ["fassaden","symmetrie","weiss"]},{"id": "img_1452","typ": "bild","datum": "2026-09-14T17:52:38","format": "hoch","begriffe": ["baum-huenenbergtreppe","baeume","treppen","gelb","serien"]},{"id": "img_1444","typ": "bild","datum": "2026-09-11T15:19:03","format": "hoch","begriffe": ["markierungen","rot","spuren"]},{"id": "img_1437","typ": "bild","datum": "2026-09-10T17:02:11","format": "hoch","begriffe": ["baum-huenenbergtreppe","baeume","treppen","gelb","serien"]},{"id": "img_1435","typ": "bild","datum": "2026-09-10T14:08:22","format": "hoch","begriffe": ["markierungen","rot"]},{"id": "img_1428","typ": "bild","datum": "2026-09-10T10:48:46","format": "hoch","begriffe": ["gestapelt","gelb","orange"]},{"id": "img_1422","typ": "bild","datum": "2026-09-08T16:24:41","format": "quer","begriffe": ["leere-raeume","rot"]},{"id": "img_1420","typ": "bild","datum": "2026-09-08T13:22:37","format": "hoch","begriffe": ["baum-huenenbergtreppe","baeume","treppen","gelb","serien"]},{"id": "img_1419","typ": "bild","datum": "2026-09-08T13:22:29","format": "hoch","begriffe": ["baum-huenenbergtreppe","baeume","treppen","gelb","serien"]},{"id": "img_1289","typ": "bild","datum": "2026-09-06T08:31:14","format": "hoch","begriffe": ["konstellationen","weiss"]},{"id": "img_1285","typ": "bild","datum": "2026-09-05T20:01:43","format": "hoch","begriffe": ["markierungen","abfall","konstellationen","rot","gruen"]},{"id": "img_1269","typ": "bild","datum": "2026-09-03T17:02:21","format": "hoch","begriffe": ["baum-huenenbergtreppe","baeume","treppen","gelb","serien"]},{"id": "img_1238","typ": "bild","datum": "2026-09-02T10:34:43","format": "hoch","begriffe": ["abfall","symmetrie","rot"]},{"id": "img_1213","typ": "bild","datum": "2026-08-29T20:37:24","format": "hoch","begriffe": ["markierungen","orange"]},{"id": "img_1210","typ": "bild","datum": "2026-08-29T19:52:36","format": "quer","begriffe": ["baustelle","gelb"]},{"id": "img_1206","typ": "bild","datum": "2026-08-29T19:51:37","format": "hoch","begriffe": ["baustelle","markierungen","rot"]},{"id": "img_1195","typ": "bild","datum": "2026-08-29T19:47:27","format": "quer","begriffe": ["markierungen","hellblau"]},{"id": "img_1184","typ": "bild","datum": "2026-08-29T18:32:16","format": "hoch","begriffe": ["angelehnt"]},{"id": "img_1182","typ": "bild","datum": "2026-08-29T18:29:15","format": "quer","begriffe": ["verstreut","konstellationen"]},{"id": "img_1169","typ": "bild","datum": "2026-08-28T13:51:44","format": "hoch","begriffe": ["angelehnt","konstellationen"]},{"id": "img_1153","typ": "bild","datum": "2026-08-23T17:01:10","format": "hoch","begriffe": ["konstellationen","baustelle"]},{"id": "img_1143","typ": "bild","datum": "2026-08-23T14:21:48","format": "hoch","begriffe": ["pfosten","orange","landschaft"]},{"id": "img_1141","typ": "bild","datum": "2026-08-23T14:21:18","format": "hoch","begriffe": ["pfosten","gelb","landschaft"]},{"id": "img_1139","typ": "bild","datum": "2026-08-23T14:09:09","format": "hoch","begriffe": ["rot"]},{"id": "img_1103","typ": "bild","datum": "2026-08-13T17:18:43","format": "hoch","begriffe": ["baum-huenenbergtreppe","baeume","treppen","serien"]},{"id": "img_1029","typ": "bild","datum": "2026-08-06T12:57:24","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_1018","typ": "bild","datum": "2026-07-30T18:34:52","format": "hoch","begriffe": ["weiss"]},{"id": "img_1013","typ": "bild","datum": "2026-07-29T19:18:51","format": "hoch","begriffe": ["pfosten","symmetrie","konstellationen"]},{"id": "img_1010","typ": "bild","datum": "2026-07-29T19:17:06","format": "hoch","begriffe": ["gruen"]},{"id": "img_1007","typ": "bild","datum": "2026-07-29T18:57:47","format": "hoch","begriffe": ["konstellationen","angelehnt","fassaden"]},{"id": "img_0989","typ": "bild","datum": "2026-07-28T20:19:15","format": "hoch","begriffe": ["wege"]},{"id": "img_0984","typ": "bild","datum": "2026-07-28T19:45:09","format": "hoch","begriffe": ["markierungen"]},{"id": "img_0942","typ": "bild","datum": "2026-07-27T16:44:50","format": "hoch","begriffe": ["baustelle"]},{"id": "img_0934","typ": "bild","datum": "2026-07-23T16:43:53","format": "hoch","begriffe": ["konstellationen","baustelle","orange"]},{"id": "img_0931","typ": "bild","datum": "2026-07-23T15:16:04","format": "hoch","begriffe": ["pfosten","markierungen","rot"]},{"id": "img_0912","typ": "bild","datum": "2026-07-19T17:24:59","format": "hoch","begriffe": ["pfosten","landschaft","orange"]},{"id": "img_0910","typ": "bild","datum": "2026-07-19T17:01:57","format": "hoch","begriffe": ["pfosten","wege","landschaft"]},{"id": "img_0905","typ": "bild","datum": "2026-07-13T15:40:41","format": "hoch","begriffe": ["baustelle","treppen"]},{"id": "img_0900","typ": "bild","datum": "2026-07-13T15:34:07","format": "hoch","begriffe": ["deckel","standpunkt","spuren"]},{"id": "img_0899","typ": "bild","datum": "2026-07-13T15:33:09","format": "hoch","begriffe": ["leere-raeume","markierungen","deckel"]},{"id": "img_0898","typ": "bild","datum": "2026-07-13T14:26:46","format": "hoch","begriffe": ["deckel","standpunkt","hellblau","serien","gelb"]},{"id": "img_0897","typ": "bild","datum": "2026-07-13T14:24:59","format": "hoch","begriffe": ["deckel","standpunkt","hellblau","serien"]},{"id": "img_0896","typ": "bild","datum": "2026-07-13T14:22:46","format": "hoch","begriffe": ["treppen","fassaden"]},{"id": "img_0895","typ": "bild","datum": "2026-07-13T14:22:32","format": "hoch","begriffe": ["markierungen","spuren","standpunkt","gelb"]},{"id": "img_0886","typ": "bild","datum": "2026-07-13T14:15:43","format": "hoch","begriffe": ["gestapelt","angelehnt","konstellationen"]},{"id": "img_0880","typ": "bild","datum": "2026-07-12T15:29:29","format": "hoch","begriffe": ["wege"]},{"id": "img_0869","typ": "bild","datum": "2026-07-12T15:19:49","format": "hoch","begriffe": ["fassaden"]},{"id": "img_0867","typ": "bild","datum": "2026-07-12T15:15:46","format": "hoch","begriffe": ["standpunkt","schatten"]},{"id": "img_0866","typ": "bild","datum": "2026-07-12T15:13:59","format": "hoch","begriffe": ["markierungen","standpunkt","schatten"]},{"id": "img_0859","typ": "bild","datum": "2026-07-12T15:09:56","format": "hoch","begriffe": ["spuren","standpunkt","verstreut"]},{"id": "img_0853","typ": "bild","datum": "2026-07-12T15:07:10","format": "hoch","begriffe": ["fassaden","symmetrie"]},{"id": "img_0852","typ": "bild","datum": "2026-07-12T15:05:14","format": "hoch","begriffe": ["spuren","schatten"]},{"id": "img_0849","typ": "bild","datum": "2026-07-12T15:04:34","format": "hoch","begriffe": ["spuren","verstreut"]},{"id": "img_0846","typ": "bild","datum": "2026-07-12T15:01:35","format": "hoch","begriffe": ["deckel","standpunkt","hellblau","serien","symmetrie"]},{"id": "img_0844","typ": "bild","datum": "2026-07-12T15:01:15","format": "hoch","begriffe": ["deckel","hellblau","serien"]},{"id": "img_0843","typ": "bild","datum": "2026-07-12T15:00:44","format": "hoch","begriffe": ["deckel","standpunkt","hellblau","serien","gelb"]},{"id": "img_0842","typ": "bild","datum": "2026-07-12T15:00:07","format": "hoch","begriffe": ["deckel","standpunkt","hellblau"]},{"id": "img_0841","typ": "bild","datum": "2026-07-12T14:59:47","format": "quer","begriffe": ["fenster","spuren","verstreut","gruen"]},{"id": "img_0840","typ": "bild","datum": "2026-07-12T14:54:13","format": "quer","begriffe": ["rot","spuren","fassaden"]},{"id": "img_0837","typ": "bild","datum": "2026-07-12T14:52:02","format": "quer","begriffe": ["fassaden","fenster","spuren","symmetrie","gelb"]},{"id": "img_0830","typ": "bild","datum": "2026-07-12T14:37:22","format": "hoch","begriffe": ["spuren","schatten","serien"]},{"id": "img_0829","typ": "bild","datum": "2026-07-12T14:37:06","format": "hoch","begriffe": ["spuren","schatten","serien"]},{"id": "img_0828","typ": "bild","datum": "2026-07-12T14:35:48","format": "hoch","begriffe": ["spuren","verstreut","serien"]},{"id": "img_0824","typ": "bild","datum": "2026-07-12T14:17:02","format": "hoch","begriffe": ["fassaden","angelehnt"]},{"id": "img_0821","typ": "bild","datum": "2026-07-12T14:08:14","format": "hoch","begriffe": ["fassaden","fenster","rot"]},{"id": "img_0819","typ": "bild","datum": "2026-07-12T14:03:03","format": "hoch","begriffe": ["pfosten","baustelle"]},{"id": "img_0817","typ": "bild","datum": "2026-07-12T14:01:53","format": "hoch","begriffe": ["landschaft","pfosten","gruen"]},{"id": "img_0816","typ": "bild","datum": "2026-07-12T14:01:47","format": "hoch","begriffe": ["landschaft","pfosten","gruen"]},{"id": "img_0810","typ": "bild","datum": "2026-07-12T13:56:11","format": "hoch","begriffe": ["landschaft","pfosten"]},{"id": "img_0809","typ": "bild","datum": "2026-07-12T13:55:46","format": "hoch","begriffe": ["spuren","schatten","verstreut"]},{"id": "img_0806","typ": "bild","datum": "2026-07-12T13:54:03","format": "hoch","begriffe": ["landschaft","spuren","wege"]},{"id": "img_0792","typ": "bild","datum": "2026-07-08T17:30:10","format": "quer","begriffe": ["markierungen","wege"]},{"id": "img_0655","typ": "bild","datum": "2026-06-04T13:54:15","format": "hoch","begriffe": ["serien","fassaden","rot","gelb"]},{"id": "img_0651","typ": "bild","datum": "2026-06-04T13:54:10","format": "hoch","begriffe": ["serien","fassaden","rot","gelb"]},{"id": "img_0649","typ": "bild","datum": "2026-06-04T13:54:07","format": "hoch","begriffe": ["serien","fassaden","rot","gelb"]},{"id": "img_0645","typ": "bild","datum": "2026-06-04T13:47:29","format": "hoch","begriffe": ["abfall","gelb"]},{"id": "img_0639","typ": "bild","datum": "2026-06-04T13:21:22","format": "hoch","begriffe": ["fassaden","deckel","fenster"]},{"id": "img_0623","typ": "bild","datum": "2026-06-01T12:11:06","format": "hoch","begriffe": ["konstellationen","schatten"]},{"id": "img_0567","typ": "bild","datum": "2026-05-30T14:33:40","format": "hoch","begriffe": ["landschaft","hellblau"]},{"id": "img_0412","typ": "bild","datum": "2026-04-29T16:48:46","format": "hoch","begriffe": ["fenster","hellblau"]},{"id": "img_0408","typ": "bild","datum": "2026-04-29T09:46:09","format": "quer","begriffe": ["leere-raeume","weiss"]},{"id": "img_0404","typ": "bild","datum": "2026-04-29T09:45:43","format": "hoch","begriffe": ["leere-raeume","weiss"]},{"id": "img_0366","typ": "bild","datum": "2026-04-22T15:51:57","format": "hoch","begriffe": ["gestapelt","konstellationen"]},{"id": "img_0341","typ": "bild","datum": "2026-04-15T13:17:25","format": "hoch","begriffe": ["angelehnt","konstellationen","abfall"]},{"id": "img_0337-2","typ": "bild","datum": "2026-04-15T12:59:08","format": "quer","begriffe": ["leere-raeume","symmetrie","weiss"]},{"id": "img_0329","typ": "bild","datum": "2026-04-15T12:38:33","format": "hoch","begriffe": ["leere-raeume"]},{"id": "img_0313-2","typ": "bild","datum": "2026-04-15T12:22:21","format": "hoch","begriffe": ["markierungen","baustelle","orange","rot"]},{"id": "img_0282","typ": "bild","datum": "2026-04-15T11:52:43","format": "quer","begriffe": ["leere-raeume"]},{"id": "img_0266","typ": "bild","datum": "2026-04-15T11:46:01","format": "quer","begriffe": ["markierungen","gelb"]},{"id": "img_0220-2","typ": "bild","datum": "2026-04-05T16:34:28","format": "hoch","begriffe": ["leere-raeume","symmetrie"]},{"id": "img_0212","typ": "bild","datum": "2026-04-05T14:19:35","format": "quer","begriffe": ["baustelle","orange","symmetrie"]},{"id": "img_0175-2","typ": "bild","datum": "2026-03-31T11:36:30","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","konstellationen","serien"]},{"id": "img_4269","typ": "bild","datum": "2026-02-24T11:14:22","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_4264","typ": "bild","datum": "2026-02-24T11:14:12","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_4256","typ": "bild","datum": "2026-02-24T11:12:54","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_4237","typ": "bild","datum": "2026-02-24T11:11:47","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_4219","typ": "bild","datum": "2026-02-24T11:10:56","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_4209","typ": "bild","datum": "2026-02-24T11:10:04","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_4189","typ": "bild","datum": "2026-02-24T11:06:38","format": "hoch","begriffe": ["abfallsaecke","abfall","hellblau","serien"]},{"id": "img_0307","typ": "bild","datum": "2026-02-09T16:05:38","format": "quer","begriffe": ["fassaden","fenster","angelehnt","symmetrie"]},{"id": "img_4087","typ": "bild","datum": "2026-02-03T16:33:49","format": "quer","begriffe": ["markierungen","gelb","serien"]},{"id": "img_4084","typ": "bild","datum": "2026-02-03T16:33:26","format": "quer","begriffe": ["markierungen","gelb","orange","deckel","serien"]},{"id": "img_4081","typ": "bild","datum": "2026-02-03T16:32:51","format": "quer","begriffe": ["markierungen","gelb","deckel","serien"]},{"id": "img_4079","typ": "bild","datum": "2026-02-03T16:32:35","format": "hoch","begriffe": ["markierungen","gelb","orange","deckel","konstellationen","serien"]},{"id": "img_4067","typ": "bild","datum": "2026-02-02T16:56:19","format": "hoch","begriffe": ["landschaft","baeume"]},{"id": "img_4059","typ": "bild","datum": "2026-02-02T15:41:42","format": "hoch","begriffe": ["orange","fassaden","wege"]},{"id": "img_4056","typ": "bild","datum": "2026-02-02T15:40:48","format": "quer","begriffe": ["pfosten","verstreut","landschaft"]},{"id": "img_4055","typ": "bild","datum": "2026-02-02T15:19:05","format": "hoch","begriffe": ["markierungen","orange","standpunkt"]},{"id": "img_3969","typ": "bild","datum": "2026-01-07T15:37:54","format": "hoch","begriffe": ["serien"]},{"id": "img_9646","typ": "bild","datum": "2025-04-11T17:01:22","format": "quer","begriffe": ["leere-raeume","konstellationen"]},{"id": "img_9643","typ": "bild","datum": "2025-04-11T17:00:54","format": "quer","begriffe": ["leere-raeume","gestapelt","gelb"]},{"id": "img_7974","typ": "bild","datum": "2024-07-25T17:45:01","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7973","typ": "bild","datum": "2024-07-25T17:16:19","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7972","typ": "bild","datum": "2024-07-25T17:10:12","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7971","typ": "bild","datum": "2024-07-25T17:06:37","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7970","typ": "bild","datum": "2024-07-25T17:01:14","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7969","typ": "bild","datum": "2024-07-25T16:57:58","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7967","typ": "bild","datum": "2024-07-25T16:52:27","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7965","typ": "bild","datum": "2024-07-25T16:51:07","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7964","typ": "bild","datum": "2024-07-25T16:49:44","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7962","typ": "bild","datum": "2024-07-25T16:45:37","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7961","typ": "bild","datum": "2024-07-25T16:45:25","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7960","typ": "bild","datum": "2024-07-25T16:44:37","format": "quer","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7959","typ": "bild","datum": "2024-07-25T16:40:24","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7956","typ": "bild","datum": "2024-07-25T16:33:29","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7954","typ": "bild","datum": "2024-07-25T16:30:23","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7953","typ": "bild","datum": "2024-07-25T16:28:04","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7952","typ": "bild","datum": "2024-07-25T16:25:56","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7951","typ": "bild","datum": "2024-07-25T16:24:36","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7949","typ": "bild","datum": "2024-07-25T16:14:03","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7948","typ": "bild","datum": "2024-07-25T16:11:45","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7943","typ": "bild","datum": "2024-07-25T16:06:09","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7940","typ": "bild","datum": "2024-07-25T16:01:08","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7939","typ": "bild","datum": "2024-07-25T16:00:44","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7938","typ": "bild","datum": "2024-07-25T15:59:09","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7936","typ": "bild","datum": "2024-07-25T15:57:31","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7935","typ": "bild","datum": "2024-07-25T15:56:47","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7934","typ": "bild","datum": "2024-07-25T15:56:11","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7932","typ": "bild","datum": "2024-07-25T15:55:04","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7930","typ": "bild","datum": "2024-07-25T15:49:20","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7927","typ": "bild","datum": "2024-07-25T15:46:48","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7926","typ": "bild","datum": "2024-07-25T15:45:57","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7925","typ": "bild","datum": "2024-07-25T15:42:33","format": "quer","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7923","typ": "bild","datum": "2024-07-25T15:39:41","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7922","typ": "bild","datum": "2024-07-25T15:38:35","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7921","typ": "bild","datum": "2024-07-25T15:36:28","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7920","typ": "bild","datum": "2024-07-25T15:35:26","format": "quer","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7913","typ": "bild","datum": "2024-07-25T15:31:38","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7908","typ": "bild","datum": "2024-07-25T15:27:42","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7907","typ": "bild","datum": "2024-07-25T15:25:03","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7905","typ": "bild","datum": "2024-07-25T15:24:02","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7903","typ": "bild","datum": "2024-07-25T15:22:15","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7900","typ": "bild","datum": "2024-07-25T15:18:21","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7893","typ": "bild","datum": "2024-07-25T15:15:37","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7892","typ": "bild","datum": "2024-07-25T15:13:51","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7891","typ": "bild","datum": "2024-07-25T15:13:13","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7890","typ": "bild","datum": "2024-07-25T15:12:08","format": "hoch","begriffe": ["brot","serien","standpunkt","verstreut"]},{"id": "img_7876","typ": "bild","datum": "2024-07-25T11:59:43","format": "hoch","begriffe": ["gestapelt","gruen","wege"]},{"id": "img_7762","typ": "bild","datum": "2024-06-26T13:05:45","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7517","typ": "bild","datum": "2024-03-22T20:00:45","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7512","typ": "bild","datum": "2024-03-20T11:35:34","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7468","typ": "bild","datum": "2024-03-01T14:56:56","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7466","typ": "bild","datum": "2024-02-29T08:40:17","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7333","typ": "bild","datum": "2024-02-09T13:05:50","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7318","typ": "bild","datum": "2024-02-04T15:35:19","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7243","typ": "bild","datum": "2024-01-26T16:29:27","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7225","typ": "bild","datum": "2024-01-24T22:50:58","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7133","typ": "bild","datum": "2024-01-19T16:31:55","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7122","typ": "bild","datum": "2024-01-13T09:13:06","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_7050","typ": "bild","datum": "2023-12-22T16:39:10","format": "hoch","begriffe": ["waesche","gestapelt","serien"]},{"id": "img_6620","typ": "bild","datum": "2023-11-26T14:02:33","format": "hoch","begriffe": ["serien","konstellationen"]}];
+
+// Begriffe: Reihenfolge und Schreibweise. Neue Begriffe einfach hier ergänzen.
+const BEGRIFFE = [
+  [ ["alle", "alle"], ["text", "Text"] ],
+  [ ["abfall","Abfall"], ["abfallsaecke","Abfallsäcke"], ["baeume","Bäume"], ["baustelle","Baustelle"], ["brot","Brot"], ["deckel","Deckel"], ["fassaden","Fassaden"], ["fenster","Fenster"],
+    ["landschaft","Landschaft"], ["leere-raeume","leere Räume"], ["markierungen","Markierungen"], ["pfosten","Pfosten"], ["schatten","Schatten"],
+    ["spuren","Spuren"], ["standpunkt","Standpunkt"], ["treppen","Treppen"], ["waesche","Wäsche"], ["wege","Wege"] ],
+  [ ["konstellationen","Konstellationen"], ["angelehnt","angelehnt"], ["gestapelt","gestapelt"], ["verstreut","verstreut"], ["symmetrie","Symmetrie"], ["serien","Serien"] ],
+  [ ["gelb","gelb"], ["orange","orange"], ["rot","rot"], ["hellblau","hellblau"], ["gruen","grün"], ["weiss","weiss"] ],
+];
+// Orte: ortsspezifische Stellen zuerst, danach die Ortschaften aus den Fotos (alphabetisch)
+const ortSlug = o => "ort-" + o.toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/[^a-z0-9]+/g,"-").replace(/-$/,"");
+const ORTE = [...new Set(EINTRAEGE.map(e => e.ort).filter(Boolean))].sort((a, b) => a.localeCompare(b, "de"));
+BEGRIFFE.push([ ["baum-huenenbergtreppe","Baum zur Hünenbergtreppe"], ...ORTE.map(o => [ortSlug(o), o]) ]);  // Ortschaften erscheinen nur, wenn Einträge ein Feld "ort" haben (zurzeit keine)
+const FARBEN = { gelb: "--gelb", orange: "--orange", rot: "--rot", hellblau: "--hellblau", gruen: "--gruen", weiss: "--weiss" };
+const NAME = Object.fromEntries(BEGRIFFE.flat());
+
+const $ = id => document.getElementById(id);
+let aktiv = "alle", sicht = EINTRAEGE, pos = -1;
+
+const passt = (e, b) => b === "alle" || (b === "text" ? (e.typ === "text" || !!e.text) : b.startsWith("ort-") ? (!!e.ort && ortSlug(e.ort) === b) : e.begriffe.includes(b));
+const datum = iso => { const [y, m, d] = iso.slice(0, 10).split("-"); return `${d}.${m}.${y}`; };
+
+function baueBegriffe() {
+  const nav = $("begriffe");
+  BEGRIFFE.forEach(gruppe => {
+    const g = document.createElement("div"); g.className = "gruppe";
+    gruppe.forEach(([slug, name]) => {
+      const n = EINTRAEGE.filter(e => passt(e, slug)).length;
+      if (!n && slug !== "alle") return;
+      const b = document.createElement("button");
+      b.className = "begriff"; b.dataset.b = slug; b.setAttribute("aria-pressed", "false");
+      if (FARBEN[slug]) { const s = document.createElement("span"); s.className = "swatch"; s.style.background = `var(${FARBEN[slug]})`; b.append(s); }
+      b.append(name);
+      const sup = document.createElement("sup"); sup.textContent = n; b.append(sup);
+      b.addEventListener("click", () => filtere(slug === aktiv && slug !== "alle" ? "alle" : slug, true));
+      g.append(b);
+    });
+    nav.append(g);
+  });
+}
+
+function filtere(slug, merken) {
+  aktiv = NAME[slug] ? slug : "alle";
+  sicht = EINTRAEGE.filter(e => passt(e, aktiv));
+  document.querySelectorAll(".begriff").forEach(b => b.setAttribute("aria-pressed", b.dataset.b === aktiv));
+  const r = $("raster"); r.replaceChildren();
+  sicht.forEach((e, i) => {
+    const f = document.createElement("button");
+    f.className = "feld"; f.addEventListener("click", () => oeffne(i, true));
+    if (e.typ === "bild") {
+      f.setAttribute("aria-label", `Bild vom ${datum(e.datum)}`);
+      const img = new Image(); img.loading = "lazy"; img.decoding = "async"; img.alt = "";
+      img.className = "laedt"; img.onload = () => img.classList.remove("laedt");
+      img.src = `img/thumb/${e.id}.jpg`; f.append(img);
+    } else {
+      f.classList.add("textfeld"); f.setAttribute("aria-label", e.titel || "Text");
+      const p = document.createElement("p"); p.textContent = e.text; f.append(p);
+    }
+    r.append(f);
+  });
+  $("leer").hidden = sicht.length > 0;
+  $("anzahl").textContent = aktiv === "alle" ? `${EINTRAEGE.length} Einträge` : `${NAME[aktiv].toLowerCase()} · ${sicht.length} von ${EINTRAEGE.length}`;
+  if (merken) setzeHash(aktiv === "alle" ? "" : aktiv);
+}
+
+function zeige() {
+  const e = sicht[pos];
+  const b = $("buehne");
+  b.querySelectorAll("img, .grosstext").forEach(n => n.remove());
+  if (e.typ === "bild") {
+    const img = new Image(); img.src = `img/full/${e.id}.jpg`; img.alt = `Bild vom ${datum(e.datum)}`; b.append(img);
+    [pos - 1, pos + 1].forEach(j => { const n = sicht[j]; if (n && n.typ === "bild") new Image().src = `img/full/${n.id}.jpg`; });
+  } else {
+    const t = document.createElement("div"); t.className = "grosstext" + (e.text.length < 140 ? " kurz" : "");
+    if (e.titel) { const h = document.createElement("h2"); h.textContent = e.titel; t.append(h); }
+    const p = document.createElement("p"); p.className = "t"; p.textContent = e.text; t.append(p);
+    if (e.quelle) { const q = document.createElement("div"); q.className = "q"; q.textContent = e.quelle; t.append(q); }
+    b.append(t);
+  }
+  const m = $("meta"); m.replaceChildren();
+  const d = document.createElement("span"); d.className = "datum";
+  if (e.ort) {
+    const oa = document.createElement("a"); oa.href = `#${ortSlug(e.ort)}`; oa.textContent = e.ort; oa.className = "ortlink";
+    oa.addEventListener("click", ev => { ev.preventDefault(); schliesse(false); filtere(ortSlug(e.ort), true); window.scrollTo(0, 0); });
+    d.append(oa, " · ");
+  }
+  d.append(datum(e.datum)); m.append(d);
+  if (e.typ === "bild" && e.text) { const p = document.createElement("p"); p.className = "bildtext"; p.textContent = e.text; m.append(p); }
+  if (e.begriffe.length) {
+    const l = document.createElement("div"); l.className = "links";
+    e.begriffe.forEach(s => {
+      if (!NAME[s]) return;
+      const a = document.createElement("a"); a.href = `#${s}`; a.textContent = NAME[s];
+      a.addEventListener("click", ev => { ev.preventDefault(); schliesse(false); filtere(s, true); window.scrollTo(0, 0); });
+      l.append(a);
+    });
+    m.append(l);
+  }
+  $("zaehler").textContent = `${pos + 1} / ${sicht.length}`;
+  $("zurueck").disabled = pos <= 0; $("weiter").disabled = pos >= sicht.length - 1;
+}
+
+function oeffne(i, merken) {
+  pos = i; $("gross").hidden = false; document.body.style.overflow = "hidden"; zeige(); $("zu").focus();
+  if (merken) setzeHash(sicht[pos].id);
+}
+function schliesse(merken = true) {
+  if ($("gross").hidden) return;
+  $("gross").hidden = true; document.body.style.overflow = "";
+  const f = $("raster").children[pos]; if (f) f.focus({ preventScroll: false });
+  if (merken) setzeHash(aktiv === "alle" ? "" : aktiv);
+}
+function schritt(d) { const n = pos + d; if (n < 0 || n >= sicht.length) return; pos = n; zeige(); setzeHash(sicht[pos].id); }
+
+function info(auf) {
+  $("info").hidden = !auf; document.body.style.overflow = auf ? "hidden" : "";
+  if (auf) { $("infozu").focus(); setzeHash("info"); } else { setzeHash(aktiv === "alle" ? "" : aktiv); $("rucksack").focus(); }
+}
+
+function setzeHash(h) { try { history.replaceState(null, "", h ? `#${h}` : location.pathname + location.search); } catch (_) {} }
+
+function vonHash() {
+  const h = decodeURIComponent((location.hash || "").slice(1));
+  if (h === "info") { filtere("alle"); info(true); return; }
+  if (NAME[h]) { filtere(h); return; }
+  const e = EINTRAEGE.find(x => x.id === h);
+  filtere("alle");
+  if (e) oeffne(sicht.indexOf(e), false);
+}
+
+// Bedienung
+$("zu").addEventListener("click", () => schliesse());
+$("zurueck").addEventListener("click", () => schritt(-1));
+$("weiter").addEventListener("click", () => schritt(1));
+$("zl").addEventListener("click", () => schritt(-1));
+$("zr").addEventListener("click", () => schritt(1));
+$("rucksack").addEventListener("click", () => info(true));
+$("infozu").addEventListener("click", () => info(false));
+$("home").addEventListener("click", ev => { ev.preventDefault(); filtere("alle", true); window.scrollTo(0, 0); });
+document.addEventListener("keydown", ev => {
+  if (!$("info").hidden && ev.key === "Escape") return info(false);
+  if ($("gross").hidden) return;
+  if (ev.key === "Escape") schliesse();
+  else if (ev.key === "ArrowLeft") schritt(-1);
+  else if (ev.key === "ArrowRight") schritt(1);
+});
+let x0 = null;
+$("gross").addEventListener("touchstart", ev => { x0 = ev.touches[0].clientX; }, { passive: true });
+$("gross").addEventListener("touchend", ev => {
+  if (x0 === null) return; const dx = ev.changedTouches[0].clientX - x0; x0 = null;
+  if (Math.abs(dx) > 50) schritt(dx < 0 ? 1 : -1);
+});
+window.addEventListener("hashchange", vonHash);
+
+baueBegriffe();
+vonHash();
+</script>
+
 </body>
 </html>
